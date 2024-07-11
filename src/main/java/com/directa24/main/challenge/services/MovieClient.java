@@ -5,8 +5,9 @@ import com.directa24.main.challenge.model.Movie;
 import java.io.IOException;
 import java.util.List;
 
+
 public interface MovieClient {
 
-    List<Movie> getMovies(int page) throws IOException;
+    List<Movie> getMoviesFromPage(int page) throws IOException;
 
 }

@@ -68,4 +68,12 @@ Help us to just have that method to get Director without to worry about the back
 ## Swagger Documentation
 ![swagger.png](src/main/resources/img/swagger.png)
 
+## Improvements not implemented
+In a large scale we could have several services thats why we need to separate more in package and with
+adapters it was not implemented becouse it has just one service
+
+Also we could adpat to others software patterns in case that we need it
+
+
+
 

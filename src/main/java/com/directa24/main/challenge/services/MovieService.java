@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 public class MovieService implements MovieClient{
     @Value("${movies.api.url}")
     private String moviesApiUrl;
-    // Autowire ObjectMapper if needed
+    // Autowire ObjectMapper
     private final ObjectMapper objectMapper;
     private final RestTemplate restTemplate;
 
@@ -28,18 +28,24 @@ public class MovieService implements MovieClient{
         this.objectMapper = objectMapper;
     }
 
-    public List<Director> getDirectors(int threshold) {
+    /**
+     * Method for getting list of directors that has more movies than the threshold
+     * Get Movies from external service iterate over page ends when return null
+     * @param threshold
+     * @return List of Directors
+     */
+    public List<Director> getDirectors(int threshold) throws IOException {
         List<Movie> movies = new ArrayList<>();
         int page = 1;
-        List<Movie> response = new ArrayList<>();
+        List<Movie> response;
 
         // Paginate through all movies
         do {
             try {
-                response = getMovies(page++);
+                response = getMoviesFromPage(page++);
                 movies.addAll(response);
-            }catch (Exception e){
-                System.out.println("Error trying to get movies:" + Arrays.toString(e.getStackTrace()));
+            }catch (IOException e){
+                throw new IOException("Failed to fetch movies: " + e.getMessage());
             }
         } while (!response.isEmpty());
 
@@ -65,8 +71,14 @@ public class MovieService implements MovieClient{
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Get Movies from page get data from specific page
+     * @param page
+     * @return List of movies inside the page
+     * @throws IOException
+     */
     @Override
-    public List<Movie> getMovies(int page) throws IOException {
+    public List<Movie> getMoviesFromPage(int page) throws IOException {
         String url = moviesApiUrl + "/api/movies/search?page=" + page;
 
         // Make HTTP GET request and deserialize JSON response
@@ -75,10 +87,16 @@ public class MovieService implements MovieClient{
         if (response != null) {
             return response;
         } else {
-            return null; // Handle case when response is null
+            return null;
         }
     }
 
+    /**
+     * Method Get Data JSON as a String and transform into list of Movie Object
+     * @param jsonString
+     * @return List of movies
+     * @throws IOException
+     */
     public List<Movie> parseMovies(String jsonString) throws IOException {
         List<Movie> result= new ArrayList<>();
         JsonNode root = objectMapper.readTree(jsonString);
